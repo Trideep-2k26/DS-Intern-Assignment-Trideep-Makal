@@ -1,5 +1,6 @@
 # Energy Consumption Prediction Report
-**Prepared by**: \Trideep Makal
+**Prepared by**: Trideep Makal
+
 **Date**: May 10, 2025
 
 ## Executive Summary
