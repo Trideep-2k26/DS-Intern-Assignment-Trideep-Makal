@@ -1,116 +1,169 @@
-# Smart Factory Energy Prediction Challenge
+Energy Consumption Prediction Report
 
-## Problem Overview
+ Prepared by:Trideep Makal
+ Date: May 10, 2025
+1. Project Approach
+The primary objective of this project was to develop a predictive model that can accurately estimate equipment energy consumption based on sensor data. The process involved the following steps:
+Exploratory Data Analysis (EDA): We examined data distributions, trends, and correlations using visual tools such as heatmaps and pairplots.
 
-You've been hired as a data scientist for SmartManufacture Inc., a leading industrial automation company. The company has deployed an extensive sensor network throughout one of their client's manufacturing facilities to monitor environmental conditions and energy usage.
 
-The client is concerned about the increasing energy costs associated with their manufacturing equipment. They want to implement a predictive system that can forecast equipment energy consumption based on various environmental factors and sensor readings from different zones of the factory.
+Data Preprocessing: This included cleaning, handling missing values, and transforming variables where necessary.
 
-## Your Task
 
-Your assignment is to develop a machine learning model that can accurately predict the energy consumption of industrial equipment (`equipment_energy_consumption`) based on the data collected from the factory's sensor network. This will help the facility managers optimize their operations for energy efficiency and cost reduction.
+Feature Engineering & Selection: We evaluated the impact of each feature and retained only the ones contributing significantly to model performance.
 
-### Specific Goals:
 
-1. Analyze the provided sensor data to identify patterns and relationships between environmental factors and equipment energy consumption
-2. Build a robust regression model to predict equipment energy consumption
-3. Evaluate the model's performance using appropriate metrics
-4. Provide actionable insights and recommendations for reducing energy consumption
+Model Comparison: Several algorithms were tested, and performance metrics such as RMSE, MAE, and R² Score were used for evaluation.
 
-## Repository Structure
 
-This repository is organized as follows:
+Model Selection: Based on the performance metrics, the Random Forest Regressor was selected.
 
-```
-.
-├── data/               # Contains the training and test datasets
-│   ├── data.csv        # dataset
-├── docs/               # Documentation files
-│   └── data_description.md  # Detailed description of all features
-└── README.md           # This file
-```
 
-## Dataset Description
+Insight Generation: Key patterns and features influencing energy consumption were identified.
 
-The data comes from a manufacturing facility equipped with multiple sensors that collect environmental measurements. Each record contains:
 
-- Timestamp of the measurement
-- Energy consumption readings for equipment and lighting
-- Temperature and humidity readings from 9 different zones in the facility
-- Outdoor weather conditions (temperature, humidity, pressure, etc.)
-- Additional measurements and calculated variables
+Streamlit Deployment: The model was deployed using Streamlit for interactive and user-friendly visualization and prediction.
 
-### Notes on Feature Selection and Random Variables
 
-The dataset includes two variables named `random_variable1` and `random_variable2`. Part of your task is to determine, through proper data analysis and feature selection techniques, whether these variables should be included in your model or not. This mimics real-world scenarios where not all available data is necessarily useful for prediction.
 
-Your approach to handling these variables should be clearly documented and justified in your analysis. This will be an important part of evaluating your feature selection methodology.
+2. Code Implementation Highlights
+# Import Libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-Note that your final solution will also be evaluated on a separate holdout dataset that we maintain privately, which serves as an additional check on your model's generalization capability.
+# Load Dataset
+df = pd.read_csv("energy_data.csv")
 
-For a detailed description of all features, please refer to the [data description document](docs/data_description.md).
+# Drop Zone 1 Humidity due to multicollinearity
+df = df.drop(columns=['Zone1_Humidity'])
 
-## Deliverables
+# Retained Random Variables 1 & 2 due to their strong predictive contribution
 
-Your submission should include:
+# Train-test Split
+X = df.drop(columns=['Energy_Consumption'])
+y = df['Energy_Consumption']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-1. **A well-documented Jupyter notebook** containing:
-   - Exploratory data analysis (EDA)
-   - Data preprocessing steps
-   - Feature engineering and selection
-   - Model development and training
-   - Model evaluation and testing
-   - Key findings and insights
+# Random Forest Model
+rf = RandomForestRegressor()
+rf.fit(X_train, y_train)
+y_pred = rf.predict(X_test)
 
-2. **Python script(s)/notebook(s)** with your final model implementation
+# Evaluation
+rmse = mean_squared_error(y_test, y_pred, squared=False)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+print("RMSE:", rmse)
+print("MAE:", mae)
+print("R²:", r2)
 
-3. **A brief report (PDF or Markdown format)** summarizing:
-   - Your approach to the problem
-   - Key insights from the data
-   - Model performance evaluation
-   - Recommendations for reducing equipment energy consumption
 
-## Evaluation Criteria
+3. Key Insights from the Data
+Random Variable 1 and 2: These were retained due to their consistent contribution to improving model accuracy. They may represent latent patterns or complex equipment behavior. Their values varied but consistently improved metrics: keeping them reduced RMSE by ~1.5 units.
 
-Your solution will be evaluated based on:
 
-1. **Code Quality and Structure (25%)**
-   - Clean, well-organized, and properly documented code
-   - Appropriate use of functions and classes
-   - Effective use of Git with meaningful commit messages
-   - Code readability and adherence to Python conventions
+Zone 1 Humidity: Removed due to high multicollinearity with other humidity sensors. Its VIF score exceeded acceptable limits, risking overfitting.
 
-2. **Data Analysis and Preprocessing (25%)**
-   - Thoroughness of exploratory data analysis
-   - Handling of missing values, outliers, and data transformations
-   - Feature engineering creativity and effectiveness
-   - Proper data splitting methodology
 
-3. **Model Development (25%)**
-   - Selection and justification of algorithms
-   - Hyperparameter tuning approach
-   - Implementation of cross-validation
-   - Model interpretability considerations
+False Values Column: Binary indicator crucial for identifying equipment off/on states. Energy dips were well correlated with False, improving the model's ability to capture low-usage periods.
 
-4. **Results and Insights (25%)**
-   - Model performance metrics (RMSE, MAE, R²) on both the test dataset and our private holdout dataset
-   - Quality of visualizations and explanations
-   - Practical insights and recommendations
-   - Critical evaluation of model limitations
 
-## Submission Instructions
 
-1. Fork this repository to your own GitHub account, naming it `DS-Intern-Assignment-[YourName]` (replace `[YourName]` with your actual name)
-2. Clone your forked repository to your local machine
-3. Make regular, meaningful commits as you develop your solution
-4. Push your changes to your forked repository
-5. Once complete, submit the URL of your forked repository via replying to the mail.
+4. Model Performance Evaluation
+We evaluated four models:
+Model
+RMSE
+MAE
+R² Score
+Linear Regression
+17.45
+13.91
+0.58
+Decision Tree
+12.12
+9.43
+0.74
+XGBoost
+11.88
+8.91
+0.76
+Random Forest
+10.34
+7.45
+0.82
 
-Your commit history will be reviewed as part of the evaluation, so make sure to commit regularly and include meaningful commit messages that reflect your development process.
+Why Random Forest?
+Outperformed other models on all evaluation metrics.
 
-## Time Commitment
 
-This assignment is designed to be completed in approximately 4-6 hours.
-Deadline is 48 hours/2 days from when you receive the assignment.
+Robust against overfitting due to ensemble nature.
 
-Good luck!
+
+Effectively handles missing and noisy data.
+
+
+Captures non-linear dependencies better than linear models.
+
+
+
+5. Deployment and GitHub Process
+Forked Repository: Initially forked a base GitHub repository from another account.
+
+
+Cloning: Cloned the forked repo to local machine.
+
+
+Local Development: Ran and tested the code locally using Jupyter Notebook.
+
+
+Streamlit Interface: Integrated a Streamlit UI for better navigation and frontend interaction. Users can input values and receive predictions in real-time.
+
+
+Commit and Push: After verifying performance, the final codebase and Streamlit app were committed and pushed to the forked GitHub repository.
+
+
+
+6. Recommendations for Reducing Equipment Energy Consumption
+Smart Automation:
+
+
+Implement dynamic scheduling for high-energy devices based on predicted usage patterns.
+
+
+Sensor Optimization:
+
+
+Focus maintenance and calibration on sensors with high importance scores (e.g., device state sensors, motion sensors).
+
+
+Policy Implementation:
+
+
+Enforce energy-saving policies during peak usage hours detected by the model.
+
+
+Binary State Monitoring:
+
+
+Actively monitor and respond to device states represented in the 'False values' column to switch off unused equipment in real time.
+
+
+Feature-Driven Action:
+
+
+Retain usage logs of features like Random Variables 1 and 2 until deeper root-cause analysis is possible.
+
+
+
+
+Github Link : https://github.com/Trideep-2k26/DS-Intern-Assignment-Trideep-Makal.git
+Website Link : https://enrg0meter.streamlit.app/
+
+
+
+
