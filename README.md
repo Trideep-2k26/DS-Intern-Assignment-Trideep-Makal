@@ -137,9 +137,10 @@ We evaluated four models:
 
 
 
-
+IDE(Google colab) link : https://colab.research.google.com/drive/1AOdMWN8kQzXl3g3LUG9ZFbSPVGQ9IoT2?usp=sharing
 
 Github Link : https://github.com/Trideep-2k26/DS-Intern-Assignment-Trideep-Makal.git
+
 Website Link : https://enrg0meter.streamlit.app/
 
 
